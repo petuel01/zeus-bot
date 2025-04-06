@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Scan | WhatsApp Bot</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 20px; }
+        #qr-code { margin: 20px auto; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #25D366; 
+                 border-radius: 50%; width: 50px; height: 50px;
+                 animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <h1>Scan WhatsApp QR Code</h1>
+    <div id="qr-code"></div>
+    <p>Open WhatsApp → Linked Devices → Scan QR Code</p>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script>
+        const socket = io();
+        const sessionId = new URLSearchParams(window.location.search).get('sessionId') || 
+                         Math.random().toString(36).substring(7);
+        
+        socket.emit('join-session', sessionId);
+        
+        socket.on('qr', qr => {
+            document.getElementById('qr-code').innerHTML = '';
+            new QRCode(document.getElementById('qr-code'), qr);
+        });
+        
+        socket.on('connected', () => {
+            window.location.href = `/success.html?sessionId=${sessionId}`;
+        });
+    </script>
+</body>
+</html>

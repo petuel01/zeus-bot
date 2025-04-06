@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pairing Code | WhatsApp Bot</title>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 20px; }
+        input { padding: 10px; font-size: 16px; margin: 10px; }
+        button { background: #128C7E; color: white; border: none;
+                padding: 12px 20px; font-size: 16px; cursor: pointer; }
+        #countdown { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Enter Phone Number</h1>
+    <input type="text" id="phone" placeholder="+1234567890">
+    <button onclick="generateCode()">Generate Pairing Code</button>
+    
+    <div id="code-section" style="display: none;">
+        <h2>Your Pairing Code: <span id="pairing-code"></span></h2>
+        <p>Check your WhatsApp notifications</p>
+        <p>Expires in: <span id="countdown">10:00</span></p>
+    </div>
+
+    <script>
+        function generateCode() {
+            const phone = document.getElementById('phone').value;
+            if(!phone.match(/^\+\d{8,15}$/)) {
+                alert('Please enter valid phone number with country code');
+                return;
+            }
+            
+            // In real implementation, send to your backend
+            const code = Math.random().toString(36).substring(2,8).toUpperCase();
+            
+            document.getElementById('pairing-code').textContent = code;
+            document.getElementById('code-section').style.display = 'block';
+            
+            // Start countdown
+            let time = 600; // 10 minutes
+            setInterval(() => {
+                time--;
+                const mins = Math.floor(time / 60);
+                const secs = time % 60;
+                document.getElementById('countdown').textContent = 
+                    `${mins}:${secs < 10 ? '0' + secs : secs}`;
+                if(time <= 0) {
+                    document.getElementById('code-section').innerHTML = 
+                        '<p style="color:red">Pairing code expired</p>';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
