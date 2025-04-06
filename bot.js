@@ -119,6 +119,15 @@ function generateSessionId() {
     return Math.random().toString(36).substring(2, 10);
 }
 
+// Add these routes before server.listen()
+app.get('/scan/qr', (req, res) => {
+    res.sendFile(__dirname + '/public/qr-scan.html');
+  });
+  
+  app.get('/scan/pairing', (req, res) => {
+    res.sendFile(__dirname + '/public/pairing-code.html');
+  });
+
 // Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
