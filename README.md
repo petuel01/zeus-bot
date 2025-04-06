@@ -16,10 +16,10 @@ Click your preferred authentication method:
 
 <div align="center">
 
-[![🟢 SCAN QR NOW](https://img.shields.io/badge/SCAN_WITH_QR-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=25D366&fontSize=26)](http://${YOUR_VPS_IP}:3000/scan/qr){:target="_blank"}  
+[<img src="https://img.shields.io/badge/SCAN_QR_NOW-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=25D366&fontSize=20" width="300">](http://YOUR_SERVER_IP:3000/scan/qr){:target="_blank"}  
 *(Mobile Recommended)*
 
-[![🔵 USE PAIRING CODE](https://img.shields.io/badge/USE_PAIRING_CODE-128C7E?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=128C7E&fontSize=26)](http://${YOUR_VPS_IP}:3000/scan/pairing){:target="_blank"}  
+[<img src="https://img.shields.io/badge/USE_PAIRING_CODE-128C7E?style=for-the-badge&logo=whatsapp&logoColor=white&labelColor=128C7E&fontSize=20" width="300">](http://YOUR_SERVER_IP:3000/scan/pairing){:target="_blank"}  
 *(Desktop Recommended)*
 
 </div>
