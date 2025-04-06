@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WhatsApp Bot</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .tab { display: none; }
+        .active { display: block; }
+        #qrCode { margin: 20px auto; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>WhatsApp Bot Setup</h1>
+    
+    <div id="methodSelection">
+        <h2>Choose Authentication Method</h2>
+        <button onclick="showTab('qrTab')">QR Code</button>
+        <button onclick="showTab('pairingTab')">Pairing Code</button>
+    </div>
+    
+    <div id="qrTab" class="tab">
+        <h2>Scan QR Code</h2>
+        <div id="qrCode"></div>
+        <p>Scan this QR code with your WhatsApp mobile app</p>
+    </div>
+    
+    <div id="pairingTab" class="tab">
+        <h2>Pair with Phone Number</h2>
+        <input type="text" id="phoneNumber" placeholder="Country code + phone number">
+        <button onclick="generatePairingCode()">Generate Code</button>
+        <div id="pairingCodeContainer" style="display: none;">
+            <h3>Your Pairing Code:</h3>
+            <div id="pairingCode"></div>
+            <p>You have 10 minutes to accept the pairing request on your phone</p>
+        </div>
+    </div>
+    
+    <div id="sessionInfo" style="display: none;">
+        <h2>Session ID</h2>
+        <p id="sessionId"></p>
+        <p>Copy this ID to use when deploying your bot</p>
+    </div>
+
+    <script>
+        const socket = io();
+        let sessionId = localStorage.getItem('sessionId') || generateSessionId();
+        
+        function generateSessionId() {
+            const id = Math.random().toString(36).substring(7);
+            localStorage.setItem('sessionId', id);
+            return id;
+        }
+        
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            
+            if(tabId === 'qrTab') {
+                startQRLogin();
+            }
+        }
+        
+        function startQRLogin() {
+            socket.emit('join', sessionId);
+            
+            socket.on('qr', (qr) => {
+                const qrElement = document.getElementById('qrCode');
+                qrElement.innerHTML = '';
+                new QRCode(qrElement, qr);
+            });
+            
+            socket.on('connected', () => {
+                document.getElementById('qrTab').style.display = 'none';
+                document.getElementById('sessionInfo').style.display = 'block';
+                document.getElementById('sessionId').textContent = sessionId;
+                
+                // Save session to server
+                fetch('/save-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId })
+                });
+            });
+        }
+        
+        function generatePairingCode() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            if(!phoneNumber) {
+                alert('Please enter a valid phone number');
+                return;
+            }
+            
+            fetch('/generate-pairing-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phoneNumber, sessionId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('pairingCode').textContent = data.code;
+                document.getElementById('pairingCodeContainer').style.display = 'block';
+                
+                // Start countdown
+                let timeLeft = 600; // 10 minutes
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    if(timeLeft <= 0) {
+                        clearInterval(timer);
+                        alert('Pairing code expired');
+                    }
+                }, 1000);
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('sessionId').textContent = sessionId;
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+</body>
+</html>
